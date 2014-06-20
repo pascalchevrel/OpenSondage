@@ -53,10 +53,24 @@ function connexion_base()
   return $DB;
 }
 
+
+/**
+ * Return server name with right HTTP scheme and port number if not a default one.
+ * The URL returned always ends with a slash
+ *
+ * @return string The base url of the server, ex: https://framadate.org:8084/
+ */
 function get_server_name()
 {
-    $scheme = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == 'on') ? 'https' : 'http';
-    return $scheme . '://' .  $_SERVER['SERVER_NAME'] . '/';
+    $scheme = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on'
+        ? 'https://'
+        : 'http://';
+
+    $port = in_array($_SERVER['SERVER_PORT'], array(80, 443))
+        ? ':' . $_SERVER['SERVER_PORT'] . '/'
+        : '/';
+
+    return $scheme. $_SERVER['SERVER_NAME'] . $port;
 }
 
 
@@ -179,8 +193,8 @@ function sendEmail( $to, $subject, $body, $headers, $param)
   } else {
     $replyTo = ADRESSEEMAILREPONSEAUTO;
   }
-  
-  
+
+
   $from = sprintf( "From: %s%s <%s>\n", $encoded_app, $folding, ADRESSEMAILADMIN ) ;
 
   if ( $headers ) $headers .= "\n" ;
